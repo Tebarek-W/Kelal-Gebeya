@@ -83,10 +83,10 @@ export default function EditProductForm({ product }: { product: Product }) {
                     className="w-full border border-gray-300 dark:border-gray-700 rounded-md p-2 bg-transparent focus:ring-2 focus:ring-purple-500 focus:outline-none dark:text-white dark:bg-neutral-800"
                 >
                     <option value="" disabled>Select a category</option>
-                    <option value="Cultural Cloth">Cultural Cloth</option>
-                    <option value="Modern Cloth">Modern Cloth</option>
+                    <option value="Traditional Clothing">Traditional Clothing</option>
+                    <option value="Modern Fashion">Modern Fashion</option>
+                    <option value="Kids & Infants">Kids & Infants</option>
                     <option value="Shoes">Shoes</option>
-                    <option value="Kids Cloth">Kids Cloth</option>
                 </select>
             </div>
 

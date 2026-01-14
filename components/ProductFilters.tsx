@@ -61,12 +61,10 @@ export default function ProductFilters() {
     }
 
     const categories = [
-        'Apparel',
-        'Electronics',
-        'Home & Garden',
-        'Beauty',
-        'Art & Collectibles',
-        'Food & Beverage'
+        'Traditional Clothing',
+        'Modern Fashion',
+        'Kids & Infants',
+        'Shoes'
     ]
 
     return (

@@ -13,12 +13,22 @@ export default function LoginPage() {
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault()
-        const { error } = await supabase.auth.signInWithPassword({ email, password })
-        if (error) {
-            setError(error.message)
-        } else {
-            router.push('/')
-            router.refresh()
+        setError('')
+        try {
+            const { error } = await supabase.auth.signInWithPassword({ email, password })
+            if (error) {
+                setError(error.message)
+            } else {
+                router.push('/')
+                router.refresh()
+            }
+        } catch (err: any) {
+            console.error('Login error:', err)
+            if (err.message === 'Failed to fetch') {
+                setError('Network error: Unable to connect to authentication server. Please check your internet connection and ensure Supabase is configured correctly.')
+            } else {
+                setError('An unexpected error occurred. Please try again later.')
+            }
         }
     }
 
