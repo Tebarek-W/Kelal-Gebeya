@@ -66,24 +66,32 @@ export default async function ProductsPage() {
                                             <span className="font-medium text-gray-900 dark:text-white">{product.name}</span>
                                         </div>
                                     </td>
-                                    <td className="px-6 py-4 text-gray-600 dark:text-gray-300">${product.price.toFixed(2)}</td>
+                                    <td className="px-6 py-4 text-gray-600 dark:text-gray-300">{product.price.toFixed(2)} ETB</td>
                                     <td className="px-6 py-4">
                                         <span className={`inline-flex px-2 py-1 rounded-full text-xs font-medium ${product.stock > 10
-                                                ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
-                                                : product.stock > 0
-                                                    ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400'
-                                                    : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+                                            ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                                            : product.stock > 0
+                                                ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400'
+                                                : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
                                             }`}>
                                             {product.stock} in stock
                                         </span>
                                     </td>
                                     <td className="px-6 py-4 text-gray-600 dark:text-gray-300">{product.category}</td>
                                     <td className="px-6 py-4 text-right">
-                                        <form action={deleteProduct.bind(null, product.id)} className="inline-block">
-                                            <button className="text-red-500 hover:text-red-700 p-2 rounded-full hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
-                                                <Trash2 className="w-4 h-4" />
-                                            </button>
-                                        </form>
+                                        <div className="flex justify-end gap-2">
+                                            <Link
+                                                href={`/dashboard/products/${product.id}`}
+                                                className="text-blue-500 hover:text-blue-700 p-2 rounded-full hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
+                                            >
+                                                <Edit className="w-4 h-4" />
+                                            </Link>
+                                            <form action={deleteProduct.bind(null, product.id)} className="inline-block">
+                                                <button className="text-red-500 hover:text-red-700 p-2 rounded-full hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
+                                                    <Trash2 className="w-4 h-4" />
+                                                </button>
+                                            </form>
+                                        </div>
                                     </td>
                                 </tr>
                             ))}

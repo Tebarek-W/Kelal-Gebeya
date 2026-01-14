@@ -25,6 +25,9 @@ export async function createShop(formData: FormData) {
 
     const name = formData.get('name') as string
     const description = formData.get('description') as string
+    const category = formData.get('category') as string
+    const contact_phone = formData.get('contact_phone') as string
+    const address = formData.get('address') as string
     const logo_url = formData.get('logo_url') as string
     const banner_url = formData.get('banner_url') as string
 
@@ -35,6 +38,9 @@ export async function createShop(formData: FormData) {
             owner_id: user.id,
             name,
             description,
+            category,
+            contact_phone,
+            address,
             logo_url,
             banner_url
         })

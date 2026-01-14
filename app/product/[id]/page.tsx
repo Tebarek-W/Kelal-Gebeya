@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import Link from 'next/link'
 import ProductGallery from '@/components/ProductGallery'
 import ProductActions from '@/components/ProductActions'
 
@@ -14,6 +15,9 @@ interface Product {
     shops?: {
         name: string
         logo_url: string | null
+        contact_phone: string | null
+        address: string | null
+        category: string | null
     } | null
 }
 
@@ -23,7 +27,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
 
     const { data: product, error } = await supabase
         .from('products')
-        .select('*, shops(name, logo_url)')
+        .select('*, shops(name, logo_url, contact_phone, address, category)')
         .eq('id', id)
         .single()
 
@@ -54,7 +58,7 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
                         </div>
 
                         <div className="flex items-center gap-4 mb-8">
-                            <p className="text-3xl font-bold text-gray-900 dark:text-white">${product.price.toFixed(2)}</p>
+                            <p className="text-3xl font-bold text-gray-900 dark:text-white">{product.price.toFixed(2)} ETB</p>
                             {product.stock > 0 ? (
                                 <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400">
                                     In Stock ({product.stock})
@@ -67,18 +71,61 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
                         </div>
 
                         {/* Shop Info */}
-                        <div className="flex items-center gap-3 p-4 bg-gray-50 dark:bg-neutral-900 rounded-xl mb-8">
-                            {product.shops?.logo_url ? (
-                                // eslint-disable-next-line @next/next/no-img-element
-                                <img src={product.shops.logo_url} className="w-12 h-12 rounded-full border border-gray-200" alt="Shop" />
-                            ) : (
-                                <div className="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center text-purple-700 font-bold text-xl">
-                                    {product.shops?.name?.[0]}
+                        <div className="p-6 bg-gray-50 dark:bg-neutral-900 rounded-xl mb-8 border border-gray-100 dark:border-neutral-800">
+                            <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">Seller Information</h3>
+                            <div className="flex items-start gap-4">
+                                {product.shops?.logo_url ? (
+                                    <Link href={`/shop/${product.shop_id}`}>
+                                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                                        <img src={product.shops.logo_url} className="w-16 h-16 rounded-full border border-gray-200 object-cover" alt="Shop" />
+                                    </Link>
+                                ) : (
+                                    <Link href={`/shop/${product.shop_id}`}>
+                                        <div className="w-16 h-16 rounded-full bg-purple-100 flex items-center justify-center text-purple-700 font-bold text-2xl flex-shrink-0">
+                                            {product.shops?.name?.[0]}
+                                        </div>
+                                    </Link>
+                                )}
+                                <div className="space-y-2 flex-1">
+                                    <div className="flex justify-between items-start">
+                                        <div>
+                                            <Link href={`/shop/${product.shop_id}`} className="hover:text-purple-600 transition-colors">
+                                                <p className="text-lg font-bold text-gray-900 dark:text-white leading-tight">{product.shops?.name}</p>
+                                            </Link>
+                                            {product.shops?.category && <p className="text-sm text-purple-600 font-medium">{product.shops.category}</p>}
+                                        </div>
+                                        <div className="flex items-center gap-1 bg-white dark:bg-black px-2 py-1 rounded-full border border-gray-200 dark:border-neutral-800">
+                                            <span className="text-yellow-400">★</span>
+                                            <span className="text-sm font-bold text-gray-900 dark:text-white">4.8</span>
+                                            <span className="text-xs text-gray-500">(124)</span>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-1 pt-1">
+                                        {product.shops?.address && (
+                                            <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                                                <span className="w-20 text-xs font-semibold uppercase text-gray-400">Address</span>
+                                                <span className="truncate">{product.shops.address}</span>
+                                            </div>
+                                        )}
+                                        {product.shops?.contact_phone && (
+                                            <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                                                <span className="w-20 text-xs font-semibold uppercase text-gray-400">Phone</span>
+                                                <span>{product.shops.contact_phone}</span>
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
-                            )}
+                            </div>
+
+                            <hr className="my-4 border-gray-200 dark:border-neutral-800" />
+
                             <div>
-                                <p className="text-sm text-gray-500">Sold by</p>
-                                <p className="font-bold text-gray-900 dark:text-white">{product.shops?.name}</p>
+                                <h4 className="text-xs font-semibold uppercase text-gray-400 mb-2">Return & Refund Policy</h4>
+                                <p className="text-sm text-gray-600 dark:text-gray-400">
+                                    7-day return policy if item is damaged or not as described.
+                                    Buyer pays return shipping.
+                                </p>
                             </div>
                         </div>
 

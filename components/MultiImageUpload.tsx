@@ -1,23 +1,25 @@
 'use client'
 import { useState } from 'react'
 import { Loader2, X, UploadCloud } from 'lucide-react'
+import { toast } from 'react-toastify'
 
 interface MultiImageUploadProps {
     onUpload: (urls: string[]) => void
     maxFiles?: number
     label: string
+    initialImages?: string[]
 }
 
-export default function MultiImageUpload({ onUpload, maxFiles = 3, label }: MultiImageUploadProps) {
+export default function MultiImageUpload({ onUpload, maxFiles = 3, label, initialImages = [] }: MultiImageUploadProps) {
     const [uploading, setUploading] = useState(false)
-    const [images, setImages] = useState<string[]>([])
+    const [images, setImages] = useState<string[]>(initialImages)
 
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = e.target.files
         if (!files || files.length === 0) return
 
         if (images.length + files.length > maxFiles) {
-            alert(`You can only upload up to ${maxFiles} images.`)
+            toast.warning(`You can only upload up to ${maxFiles} images.`)
             return
         }
 
@@ -25,7 +27,7 @@ export default function MultiImageUpload({ onUpload, maxFiles = 3, label }: Mult
         const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET
 
         if (!cloudName || !uploadPreset) {
-            alert('Cloudinary config missing.')
+            toast.error('Cloudinary config missing.')
             return
         }
 
@@ -55,10 +57,11 @@ export default function MultiImageUpload({ onUpload, maxFiles = 3, label }: Mult
             const updatedImages = [...images, ...newUrls]
             setImages(updatedImages)
             onUpload(updatedImages)
+            toast.success('Images uploaded successfully!')
 
         } catch (err) {
             console.error('Upload failed', err)
-            alert('One or more uploads failed.')
+            toast.error('One or more uploads failed.')
         } finally {
             setUploading(false)
         }

@@ -51,7 +51,7 @@ export default function NewProductPage() {
 
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Price ($)</label>
+                            <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Price (ETB)</label>
                             <input
                                 name="price"
                                 type="number"
@@ -77,14 +77,14 @@ export default function NewProductPage() {
                         <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Category</label>
                         <select
                             name="category"
-                            className="w-full border border-gray-300 dark:border-gray-700 rounded-md p-2 bg-transparent focus:ring-2 focus:ring-purple-500 focus:outline-none dark:text-white"
+                            defaultValue=""
+                            className="w-full border border-gray-300 dark:border-gray-700 rounded-md p-2 bg-transparent focus:ring-2 focus:ring-purple-500 focus:outline-none dark:text-white dark:bg-neutral-800"
                         >
-                            <option value="Clothing">Clothing</option>
+                            <option value="" disabled>Select a category</option>
+                            <option value="Cultural Cloth">Cultural Cloth</option>
+                            <option value="Modern Cloth">Modern Cloth</option>
                             <option value="Shoes">Shoes</option>
-                            <option value="Accessories">Accessories</option>
-                            <option value="Electronics">Electronics</option>
-                            <option value="Home">Home</option>
-                            <option value="Art">Art</option>
+                            <option value="Kids Cloth">Kids Cloth</option>
                         </select>
                     </div>
 

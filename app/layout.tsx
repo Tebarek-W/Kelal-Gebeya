@@ -4,6 +4,8 @@ import './globals.css'
 import StoreProvider from '@/components/StoreProvider'
 import AuthProvider from '@/components/AuthProvider'
 import Navbar from '@/components/Navbar'
+import { ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -26,6 +28,18 @@ export default function RootLayout({
             <main className="min-h-screen bg-gray-50 dark:bg-black text-gray-900 dark:text-gray-100">
               {children}
             </main>
+            <ToastContainer
+              position="top-right"
+              autoClose={3000}
+              hideProgressBar={false}
+              newestOnTop
+              closeOnClick
+              rtl={false}
+              pauseOnFocusLoss
+              draggable
+              pauseOnHover
+              theme="colored"
+            />
           </AuthProvider>
         </StoreProvider>
       </body>

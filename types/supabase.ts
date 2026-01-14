@@ -67,6 +67,9 @@ export interface Database {
                     images: string[] | null
                     stock: number
                     category: string | null
+                    description: string | null
+                    colors: string[] | null
+                    sizes: string[] | null
                     created_at: string
                 }
                 Insert: {
@@ -77,6 +80,9 @@ export interface Database {
                     images?: string[] | null
                     stock?: number
                     category?: string | null
+                    description?: string | null
+                    colors?: string[] | null
+                    sizes?: string[] | null
                     created_at?: string
                 }
                 Update: {
@@ -87,6 +93,9 @@ export interface Database {
                     images?: string[] | null
                     stock?: number
                     category?: string | null
+                    description?: string | null
+                    colors?: string[] | null
+                    sizes?: string[] | null
                     created_at?: string
                 }
             }

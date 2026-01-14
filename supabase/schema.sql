@@ -24,6 +24,9 @@ create table public.shops (
   description text,
   logo_url text,
   banner_url text,
+  contact_phone text,
+  address text,
+  category text,
   created_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
 
@@ -38,10 +41,13 @@ create table public.products (
   id uuid default gen_random_uuid() primary key,
   shop_id uuid references public.shops(id) on delete cascade not null,
   name text not null,
+  description text,
   price numeric not null,
   images text[],
   stock integer default 0,
   category text,
+  sizes text[],
+  colors text[],
   created_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
 
@@ -61,6 +67,7 @@ create table public.orders (
   buyer_id uuid references public.profiles(id),
   shop_id uuid references public.shops(id),
   total_price numeric not null,
+  payment_method text,
   status public.order_status default 'pending'::public.order_status,
   created_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
@@ -72,6 +79,35 @@ create policy "Vendors can view orders for their shop" on public.orders for sele
     exists (select 1 from public.shops where id = shop_id and owner_id = auth.uid())
 );
 create policy "Users can create orders" on public.orders for insert with check (auth.uid() = buyer_id);
+create policy "Vendors can update orders for their shop" on public.orders for update using (
+    exists (select 1 from public.shops where id = shop_id and owner_id = auth.uid())
+);
+
+-- Create Order Items Table
+create table public.order_items (
+  id uuid default gen_random_uuid() primary key,
+  order_id uuid references public.orders(id) on delete cascade not null,
+  product_id uuid references public.products(id),
+  quantity integer not null,
+  price numeric not null,
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
+
+-- Enable RLS for Order Items
+alter table public.order_items enable row level security;
+create policy "Users can view their own order items" on public.order_items for select using (
+  exists (select 1 from public.orders where id = order_items.order_id and buyer_id = auth.uid())
+);
+create policy "Vendors can view items for their shop orders" on public.order_items for select using (
+  exists (
+    select 1 from public.orders
+    join public.shops on orders.shop_id = shops.id
+    where orders.id = order_items.order_id and shops.owner_id = auth.uid()
+  )
+);
+create policy "Users can insert their own order items" on public.order_items for insert with check (
+  exists (select 1 from public.orders where id = order_id and buyer_id = auth.uid())
+);
 
 -- Trigger to create profile on signup
 -- Note: You might need to drop existing trigger/function if they exist

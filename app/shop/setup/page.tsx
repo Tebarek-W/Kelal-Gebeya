@@ -55,6 +55,38 @@ export default function ShopSetupPage() {
                         />
                     </div>
 
+                    <div>
+                        <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">What do you sell? (Category)</label>
+                        <input
+                            name="category"
+                            required
+                            className="w-full border border-gray-300 dark:border-gray-700 rounded-md p-2 bg-transparent focus:ring-2 focus:ring-purple-500 focus:outline-none"
+                            placeholder="e.g. Men's Fashion, Women's Clothing, Accessories"
+                        />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Contact Phone Number</label>
+                            <input
+                                name="contact_phone"
+                                type="tel"
+                                required
+                                className="w-full border border-gray-300 dark:border-gray-700 rounded-md p-2 bg-transparent focus:ring-2 focus:ring-purple-500 focus:outline-none"
+                                placeholder="+251 9..."
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Shop Address</label>
+                            <input
+                                name="address"
+                                required
+                                className="w-full border border-gray-300 dark:border-gray-700 rounded-md p-2 bg-transparent focus:ring-2 focus:ring-purple-500 focus:outline-none"
+                                placeholder="Addis Ababa, Bole..."
+                            />
+                        </div>
+                    </div>
+
                     <ImageUpload onUpload={setLogoUrl} label="Shop Logo (Required)" />
                     <ImageUpload onUpload={setBannerUrl} label="Shop Banner (Optional)" />
 

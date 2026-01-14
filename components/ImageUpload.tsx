@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react'
 import { Loader2 } from 'lucide-react'
+import { toast } from 'react-toastify'
 
 interface ImageUploadProps {
     onUpload: (url: string) => void
@@ -19,7 +20,7 @@ export default function ImageUpload({ onUpload, label }: ImageUploadProps) {
         const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET
 
         if (!cloudName || !uploadPreset) {
-            alert('Cloudinary config missing. Check .env.local')
+            toast.error('Cloudinary config missing. Check .env.local')
             console.error('Missing Config:', { cloudName, uploadPreset })
             return
         }
@@ -40,9 +41,9 @@ export default function ImageUpload({ onUpload, label }: ImageUploadProps) {
                 console.error(`Cloudinary Error (${res.status}):`, errorText)
                 try {
                     const errorJson = JSON.parse(errorText)
-                    alert(`Upload failed: ${errorJson.error?.message || res.statusText}`)
+                    toast.error(`Upload failed: ${errorJson.error?.message || res.statusText}`)
                 } catch {
-                    alert(`Upload failed: ${res.statusText}`)
+                    toast.error(`Upload failed: ${res.statusText}`)
                 }
                 return
             }
@@ -53,13 +54,14 @@ export default function ImageUpload({ onUpload, label }: ImageUploadProps) {
             if (data.secure_url) {
                 setPreview(data.secure_url)
                 onUpload(data.secure_url)
+                toast.success('Image uploaded successfully!')
             } else {
                 console.error('Missing secure_url in response:', data)
-                alert('Upload successful but URL missing.')
+                toast.error('Upload successful but URL missing.')
             }
         } catch (err) {
             console.error('Network Error:', err)
-            alert('Network error during upload.')
+            toast.error('Network error during upload.')
         } finally {
             setUploading(false)
         }
