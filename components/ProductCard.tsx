@@ -42,6 +42,7 @@ export default function ProductCard({ product }: { product: Product }) {
                                 src={product.images[0]}
                                 alt={product.name}
                                 fill
+                                unoptimized
                                 className="object-cover transition-transform group-hover:scale-105"
                             />
                         ) : (
