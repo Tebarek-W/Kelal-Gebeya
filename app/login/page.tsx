@@ -15,11 +15,26 @@ export default function LoginPage() {
         e.preventDefault()
         setError('')
         try {
-            const { error } = await supabase.auth.signInWithPassword({ email, password })
+            const { data, error } = await supabase.auth.signInWithPassword({ email, password })
             if (error) {
                 setError(error.message)
             } else {
-                router.push('/')
+                // Check if user has admin role
+                if (data.user) {
+                    const { data: profile } = await supabase
+                        .from('profiles')
+                        .select('role')
+                        .eq('id', data.user.id)
+                        .single()
+
+                    if (profile?.role === 'admin') {
+                        router.push('/admin')
+                    } else {
+                        router.push('/')
+                    }
+                } else {
+                    router.push('/')
+                }
                 router.refresh()
             }
         } catch (err: any) {
@@ -40,12 +55,12 @@ export default function LoginPage() {
                     <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">Sign in to your account</p>
                 </div>
                 <form className="mt-8 space-y-6" onSubmit={handleLogin}>
-                    <div className="-space-y-px rounded-md shadow-sm">
+                    <div className="space-y-4">
                         <div>
                             <input
                                 type="email"
                                 required
-                                className="relative block w-full rounded-t-md border-0 py-2.5 px-3 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:z-10 focus:ring-2 focus:ring-inset focus:ring-purple-600 sm:text-sm sm:leading-6 dark:bg-neutral-800 dark:text-white dark:ring-gray-700"
+                                className="relative block w-full rounded-md border-0 py-2.5 px-3 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:z-10 focus:ring-2 focus:ring-inset focus:ring-purple-600 sm:text-sm sm:leading-6 dark:bg-neutral-800 dark:text-white dark:ring-gray-700"
                                 placeholder="Email address"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
@@ -55,7 +70,7 @@ export default function LoginPage() {
                             <input
                                 type="password"
                                 required
-                                className="relative block w-full rounded-b-md border-0 py-2.5 px-3 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:z-10 focus:ring-2 focus:ring-inset focus:ring-purple-600 sm:text-sm sm:leading-6 dark:bg-neutral-800 dark:text-white dark:ring-gray-700"
+                                className="relative block w-full rounded-md border-0 py-2.5 px-3 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:z-10 focus:ring-2 focus:ring-inset focus:ring-purple-600 sm:text-sm sm:leading-6 dark:bg-neutral-800 dark:text-white dark:ring-gray-700"
                                 placeholder="Password"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
@@ -67,7 +82,7 @@ export default function LoginPage() {
 
                     <button
                         type="submit"
-                        className="group relative flex w-full justify-center rounded-md bg-purple-600 px-3 py-2.5 text-sm font-semibold text-white hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-600 shadow-md shadow-purple-600/20"
+                        className="group relative flex w-full justify-center rounded-md bg-purple-600 px-3 py-2.5 text-sm font-semibold text-white hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-600 shadow-md shadow-purple-600/20 cursor-pointer transition-colors"
                     >
                         Sign in
                     </button>

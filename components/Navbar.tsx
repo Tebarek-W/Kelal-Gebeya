@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation'
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { setUser } from '@/lib/features/auth/authSlice'
 import { toast } from 'react-toastify'
+import { logout } from '@/app/auth/actions'
 
 interface SearchResult {
     id: string
@@ -34,15 +35,23 @@ export default function Navbar() {
 
     const handleLogout = async () => {
         setShowProfileMenu(false)
-        const { error } = await supabase.auth.signOut()
-        if (error) {
-            toast.error('Failed to logout')
-            return
+        try {
+            // Clear client-side state first
+            dispatch(setUser({ user: null, role: null }))
+
+            // Call server action to clear cookies
+            const result = await logout()
+            if (result?.success) {
+                toast.success('Logged out successfully')
+                router.push('/')
+                router.refresh()
+            } else if (result?.error) {
+                toast.error(result.error)
+            }
+        } catch (error) {
+            console.error('Logout failed:', error)
+            toast.error('Failed to logout. Please try again.')
         }
-        dispatch(setUser({ user: null, role: null }))
-        toast.success('Logged out successfully')
-        router.push('/')
-        router.refresh()
     }
 
     // Search products
@@ -171,6 +180,12 @@ export default function Navbar() {
                             </Link>
                         )}
 
+                        {role === 'admin' && (
+                            <Link href="/admin" className="text-sm font-medium hover:text-purple-600 transition-colors">
+                                Admin Panel
+                            </Link>
+                        )}
+
                         {user && (
                             <Link href="/orders" className="text-sm font-medium hover:text-purple-600 transition-colors">
                                 My Orders
@@ -200,6 +215,18 @@ export default function Navbar() {
                                         <div className="p-4 border-b border-gray-100 dark:border-neutral-800">
                                             <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Signed in as</p>
                                             <p className="text-sm font-medium text-gray-900 dark:text-white truncate">{user.email}</p>
+                                        </div>
+                                        <div className="p-2 border-b border-gray-100 dark:border-neutral-800">
+                                            {role === 'admin' && (
+                                                <Link
+                                                    href="/admin"
+                                                    onClick={() => setShowProfileMenu(false)}
+                                                    className="w-full flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-lg transition-colors"
+                                                >
+                                                    <User className="w-4 h-4" />
+                                                    Admin Dashboard
+                                                </Link>
+                                            )}
                                         </div>
                                         <div className="p-2">
                                             <button

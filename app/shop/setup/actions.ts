@@ -42,7 +42,9 @@ export async function createShop(formData: FormData) {
             contact_phone,
             address,
             logo_url,
-            banner_url
+            banner_url,
+            status: 'pending',
+            is_verified: false
         })
 
     if (shopError) {

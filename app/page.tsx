@@ -30,29 +30,43 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
 
   return (
     <div className="bg-white dark:bg-black min-h-screen">
-      {/* 1. Minimalist Hero */}
-      <section className="pt-24 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-        <div className="max-w-3xl">
-          <h1 className="text-4xl sm:text-6xl font-bold text-gray-900 dark:text-white leading-tight tracking-tight">
-            Ethiopia's curated <br />
-            <span className="text-neutral-500">fashion marketplace.</span>
-          </h1>
-          <p className="mt-6 text-lg text-neutral-500 dark:text-neutral-400 font-medium">
-            Discover authentic traditional wear and modern design from local independent creators.
-          </p>
-          <div className="mt-10 flex items-center gap-6">
-            <Link
-              href="#catalog"
-              className="text-sm font-bold uppercase tracking-widest text-gray-900 dark:text-white border-b-2 border-black dark:border-white pb-1 hover:text-neutral-500 hover:border-neutral-500 transition-all"
-            >
-              Browse Catalog
-            </Link>
-            <Link
-              href="/shop/setup"
-              className="text-sm font-bold uppercase tracking-widest text-neutral-400 hover:text-gray-900 dark:hover:text-white transition-all"
-            >
-              Become a Vendor
-            </Link>
+      {/* 1. Enhanced Lifestyle Hero */}
+      <section className="relative pt-20 pb-20 lg:pt-32 lg:pb-32 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto overflow-hidden">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <div className="text-left z-10">
+            <h1 className="text-5xl lg:text-7xl font-bold text-gray-900 dark:text-white leading-[1.1] tracking-tight mb-8">
+              Discover Ethiopian <br />
+              <span className="bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 bg-clip-text text-transparent">fashion from trusted local shops</span>
+            </h1>
+            <p className="text-xl text-gray-600 dark:text-neutral-400 font-medium mb-12 max-w-xl leading-relaxed">
+              Cultural wear, modern styles, kids clothing, and shoes—all in one marketplace.
+            </p>
+            <div className="flex flex-wrap items-center gap-6">
+              <Link
+                href="#catalog"
+                className="px-8 py-4 bg-purple-600 text-white font-bold rounded-full hover:bg-purple-700 transition-all shadow-lg shadow-purple-600/20 hover:scale-105 active:scale-95 text-lg"
+              >
+                Shop Now
+              </Link>
+              <Link
+                href="/shop/setup"
+                className="px-8 py-4 bg-white dark:bg-neutral-900 text-gray-900 dark:text-white font-bold rounded-full border border-neutral-200 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-all hover:scale-105 active:scale-95 text-lg"
+              >
+                Sell Your Clothes
+              </Link>
+            </div>
+          </div>
+
+          <div className="relative group lg:block">
+            <div className="absolute -inset-4 bg-gradient-to-tr from-purple-500/20 to-pink-500/20 blur-3xl opacity-50 group-hover:opacity-75 transition-opacity" />
+            <div className="relative rounded-3xl overflow-hidden shadow-2xl border border-white/10 aspect-[4/5] lg:aspect-square">
+              <img
+                src="/hero.png"
+                alt="Ethiopian Fashion Lifestyle"
+                className="w-full h-full object-cover transform transition-transform duration-700 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+            </div>
           </div>
         </div>
       </section>

@@ -70,6 +70,45 @@ export default async function DashboardPage() {
                 </div>
             </div>
 
+            {/* Status Banners */}
+            {shop.status === 'pending' && (
+                <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded-r-md">
+                    <div className="flex">
+                        <div className="ml-3">
+                            <h3 className="text-sm font-medium text-yellow-800">Shop Under Review</h3>
+                            <div className="mt-2 text-sm text-yellow-700">
+                                <p>Your shop is currently pending approval from our administrators. You cannot upload products or receive orders until approved.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+            {shop.status === 'rejected' && (
+                <div className="bg-red-50 border-l-4 border-red-400 p-4 rounded-r-md">
+                    <div className="flex">
+                        <div className="ml-3">
+                            <h3 className="text-sm font-medium text-red-800">Application Rejected</h3>
+                            <div className="mt-2 text-sm text-red-700">
+                                <p>Your shop application has been rejected.</p>
+                                {shop.admin_notes && <p className="mt-1 font-semibold">Reason: {shop.admin_notes}</p>}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+            {shop.status === 'suspended' && (
+                <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-r-md">
+                    <div className="flex">
+                        <div className="ml-3">
+                            <h3 className="text-sm font-medium text-red-800">Shop Suspended</h3>
+                            <div className="mt-2 text-sm text-red-700">
+                                <p>Your shop has been suspended. Your products are no longer visible, and new orders cannot be placed. Please contact support.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {stats.map((stat) => (
                     <div key={stat.label} className="bg-white dark:bg-neutral-900 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-neutral-800 transition-all hover:shadow-md">

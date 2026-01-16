@@ -22,7 +22,11 @@ export default function NewProductPage() {
 
         const res = await createProduct(formData)
         if (res?.error) {
-            setError(res.error)
+            if (res.error.includes("Vendors can insert products to own APPROVED shop")) {
+                setError("You cannot upload products because your shop is not approved or is suspended.")
+            } else {
+                setError(res.error)
+            }
         }
     }
 
