@@ -169,7 +169,7 @@ export default function Navbar() {
 
                     <div className="flex items-center space-x-4">
                         {role === 'buyer' && (
-                            <Link href="/shop/setup" className="text-sm font-medium hover:text-purple-600 transition-colors">
+                            <Link href="/shop/create" className="text-sm font-medium hover:text-purple-600 transition-colors">
                                 Become a Seller
                             </Link>
                         )}

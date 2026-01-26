@@ -190,6 +190,7 @@ begin
     new.raw_user_meta_data->>'full_name', 
     case 
       when new.email = 'baruck12@gmail.com' then 'admin'::public.user_role
+      when new.email = 'admin@kelalgebeya.com' then 'admin'::public.user_role
       else 'buyer'::public.user_role
     end
   );

@@ -22,10 +22,10 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
   const { data: products } = await productQuery.order('created_at', { ascending: false }).limit(20)
 
   const categories = [
-    { name: 'Traditional Clothing', count: '120+ Items' },
-    { name: 'Modern Fashion', count: '450+ Items' },
-    { name: 'Kids & Infants', count: '80+ Items' },
-    { name: 'Shoes', count: '200+ Items' },
+    { name: 'Fashion', count: '500+ Items', description: 'Clothing & Shoes' },
+    { name: 'Electronics', count: '200+ Items', description: 'Gadgets & Core Tech' },
+    { name: 'Jewelry', count: '150+ Items', description: 'Gems & Watches' },
+    { name: 'Handmade Crafts', count: '300+ Items', description: 'Art & Heritage' },
   ]
 
   return (
@@ -36,23 +36,23 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
           <div className="text-left z-10">
             <h1 className="text-5xl lg:text-7xl font-bold text-gray-900 dark:text-white leading-[1.1] tracking-tight mb-8">
               Discover Ethiopian <br />
-              <span className="bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 bg-clip-text text-transparent">fashion from trusted local shops</span>
+              <span className="bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 bg-clip-text text-transparent">craftsmanship & innovation</span>
             </h1>
             <p className="text-xl text-gray-600 dark:text-neutral-400 font-medium mb-12 max-w-xl leading-relaxed">
-              Cultural wear, modern styles, kids clothing, and shoes—all in one marketplace.
+              From traditional fashion to modern electronics and unique handmade gems—all from trusted local vendors.
             </p>
             <div className="flex flex-wrap items-center gap-6">
               <Link
                 href="#catalog"
                 className="px-8 py-4 bg-purple-600 text-white font-bold rounded-full hover:bg-purple-700 transition-all shadow-lg shadow-purple-600/20 hover:scale-105 active:scale-95 text-lg"
               >
-                Shop Now
+                Start Exploring
               </Link>
               <Link
-                href="/shop/setup"
+                href="/shop/create"
                 className="px-8 py-4 bg-white dark:bg-neutral-900 text-gray-900 dark:text-white font-bold rounded-full border border-neutral-200 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-all hover:scale-105 active:scale-95 text-lg"
               >
-                Sell Your Clothes
+                Open Your Shop
               </Link>
             </div>
           </div>
@@ -62,7 +62,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
             <div className="relative rounded-3xl overflow-hidden shadow-2xl border border-white/10 aspect-[4/5] lg:aspect-square">
               <img
                 src="/hero.png"
-                alt="Ethiopian Fashion Lifestyle"
+                alt="Ethiopian Marketplace Lifestyle"
                 className="w-full h-full object-cover transform transition-transform duration-700 group-hover:scale-105"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
@@ -86,7 +86,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
               >
                 <h3 className="font-bold text-sm tracking-wide uppercase">{cat.name}</h3>
                 <p className={`text-[10px] mt-1 uppercase tracking-widest ${category === cat.name ? 'opacity-60' : 'text-neutral-400'}`}>
-                  {cat.count}
+                  {cat.description} • {cat.count}
                 </p>
               </Link>
             ))}
@@ -99,9 +99,9 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
         <div className="mb-12">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
             <div>
-              <p className="text-[10px] uppercase tracking-[0.2em] text-neutral-400 font-bold mb-2">Collection</p>
+              <p className="text-[10px] uppercase tracking-[0.2em] text-neutral-400 font-bold mb-2">Marketplace</p>
               <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
-                {q ? `Search: ${q}` : category || 'All Products'}
+                {q ? `Search: ${q}` : category || 'Recent Products'}
               </h2>
             </div>
             <div className="flex-1 max-w-xs w-full">
@@ -129,7 +129,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
       <section className="py-32 bg-neutral-50 dark:bg-neutral-900/50">
         <div className="max-w-4xl mx-auto px-4 text-center">
           <h2 className="text-2xl sm:text-3xl font-medium text-gray-900 dark:text-white italic leading-relaxed">
-            "We believe in fashion that tells a story, connecting Ethiopia's heritage with the modern world through the hands of independent creators."
+            "Connecting Ethiopia's rich heritage with modern innovation through one trusted, community-driven marketplace."
           </h2>
           <div className="mt-12 flex items-center justify-center gap-8 grayscale opacity-40">
             <span className="font-bold tracking-tighter text-2xl italic">EST. 2026</span>
@@ -141,3 +141,4 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
     </div>
   )
 }
+

@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { updateProduct } from '../actions'
 import MultiImageUpload from '@/components/MultiImageUpload'
+import { PRODUCT_CATEGORIES, ShopCategory } from '@/lib/categories'
 
 interface Product {
     id: string
@@ -14,7 +15,7 @@ interface Product {
     images: string[] | null
 }
 
-export default function EditProductForm({ product }: { product: Product }) {
+export default function EditProductForm({ product, shopCategory }: { product: Product, shopCategory: ShopCategory }) {
     const [images, setImages] = useState<string[]>(product.images || [])
     const [error, setError] = useState('')
 
@@ -34,6 +35,8 @@ export default function EditProductForm({ product }: { product: Product }) {
         }
     }
 
+    const categories = PRODUCT_CATEGORIES[shopCategory] || []
+
     return (
         <form action={handleSubmit} className="space-y-6">
             <input type="hidden" name="id" value={product.id} />
@@ -45,7 +48,7 @@ export default function EditProductForm({ product }: { product: Product }) {
                     required
                     defaultValue={product.name}
                     className="w-full border border-gray-300 dark:border-gray-700 rounded-md p-2 bg-transparent focus:ring-2 focus:ring-purple-500 focus:outline-none dark:text-white"
-                    placeholder="Vintage Denim Jacket"
+                    placeholder="e.g. Traditional Dress"
                 />
             </div>
 
@@ -79,14 +82,14 @@ export default function EditProductForm({ product }: { product: Product }) {
                 <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Category</label>
                 <select
                     name="category"
+                    required
                     defaultValue={product.category || ""}
                     className="w-full border border-gray-300 dark:border-gray-700 rounded-md p-2 bg-transparent focus:ring-2 focus:ring-purple-500 focus:outline-none dark:text-white dark:bg-neutral-800"
                 >
-                    <option value="" disabled>Select a category</option>
-                    <option value="Traditional Clothing">Traditional Clothing</option>
-                    <option value="Modern Fashion">Modern Fashion</option>
-                    <option value="Kids & Infants">Kids & Infants</option>
-                    <option value="Shoes">Shoes</option>
+                    <option value="" disabled>Select a sub-category</option>
+                    {categories.map(cat => (
+                        <option key={cat} value={cat}>{cat}</option>
+                    ))}
                 </select>
             </div>
 

@@ -3,6 +3,7 @@ import { notFound, redirect } from 'next/navigation'
 import EditProductForm from './EditProductForm'
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
+import { ShopCategory } from '@/lib/categories'
 
 export default async function EditProductPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params
@@ -15,7 +16,13 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
 
     const { data: product } = await supabase
         .from('products')
-        .select('*, shops(owner_id)')
+        .select(`
+            *, 
+            shops (
+                owner_id,
+                category
+            )
+        `)
         .eq('id', id)
         .single()
 
@@ -23,8 +30,9 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
         notFound()
     }
 
+    const shop = product.shops as any
     // Check ownership
-    if ((product.shops as any).owner_id !== user.id) {
+    if (shop.owner_id !== user.id) {
         redirect('/dashboard/products')
     }
 
@@ -35,9 +43,12 @@ export default async function EditProductPage({ params }: { params: Promise<{ id
             </Link>
 
             <h1 className="text-2xl font-bold mb-8 text-gray-900 dark:text-white">Edit Product</h1>
+            <p className="mb-6 text-sm text-gray-500 dark:text-gray-400">
+                Editing product in your <strong className="text-purple-600 dark:text-purple-400">{shop.category}</strong> shop.
+            </p>
 
             <div className="bg-white dark:bg-neutral-900 p-8 rounded-xl shadow-sm border border-gray-100 dark:border-neutral-800">
-                <EditProductForm product={product} />
+                <EditProductForm product={product} shopCategory={shop.category as ShopCategory} />
             </div>
         </div>
     )

@@ -180,7 +180,14 @@ export default function VendorsList({ shops }: { shops: Shop[] }) {
                             <div className="flex justify-between items-start mb-6">
                                 <div>
                                     <h3 className="text-2xl font-bold text-white">{selectedShop.name}</h3>
-                                    <p className="text-purple-400 font-medium text-sm">{selectedShop.category}</p>
+                                    <p className="text-purple-400 font-medium text-sm">
+                                        {selectedShop.category}
+                                        {(selectedShop as any).specific_categories?.length > 0 && (
+                                            <span className="text-zinc-500 ml-2 text-xs font-normal">
+                                                ( {(selectedShop as any).specific_categories.join(', ')} )
+                                            </span>
+                                        )}
+                                    </p>
                                 </div>
                                 <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${selectedShop.status === 'approved' ? 'bg-emerald-500/20 text-emerald-500' :
                                     selectedShop.status === 'pending' ? 'bg-yellow-500/20 text-yellow-500' :

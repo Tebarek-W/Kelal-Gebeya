@@ -26,10 +26,17 @@ export async function createShop(formData: FormData) {
     const name = formData.get('name') as string
     const description = formData.get('description') as string
     const category = formData.get('category') as string
+
+    // Validate Category
+    const validCategories = ['Fashion', 'Electronics', 'Jewelry', 'Handmade Crafts']
+    if (!validCategories.includes(category)) {
+        return { error: 'Invalid category selected.' }
+    }
     const contact_phone = formData.get('contact_phone') as string
     const address = formData.get('address') as string
     const logo_url = formData.get('logo_url') as string
     const banner_url = formData.get('banner_url') as string
+    const specific_categories = formData.getAll('specific_categories') as string[]
 
     // Create Shop
     const { error: shopError } = await supabase
@@ -39,6 +46,7 @@ export async function createShop(formData: FormData) {
             name,
             description,
             category,
+            specific_categories,
             contact_phone,
             address,
             logo_url,

@@ -1,33 +1,27 @@
-'use client'
-
-import { useState } from 'react'
-import { createProduct } from '../actions'
-import MultiImageUpload from '@/components/MultiImageUpload'
-import { ArrowLeft } from 'lucide-react'
+import { createClient } from '@/lib/supabase/server'
+import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import { ArrowLeft } from 'lucide-react'
+import NewProductForm from './NewProductForm'
+import { ShopCategory } from '@/lib/categories'
 
-export default function NewProductPage() {
-    const [images, setImages] = useState<string[]>([])
-    const [error, setError] = useState('')
+export default async function NewProductPage() {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
 
-    async function handleSubmit(formData: FormData) {
-        if (images.length === 0) {
-            setError('Please upload at least one product image')
-            return
-        }
-        setError('')
+    if (!user) {
+        redirect('/login')
+    }
 
-        // Append actual images array data
-        formData.set('images', JSON.stringify(images))
+    // Get User's Shop Category
+    const { data: shop } = await supabase
+        .from('shops')
+        .select('category')
+        .eq('owner_id', user.id)
+        .single()
 
-        const res = await createProduct(formData)
-        if (res?.error) {
-            if (res.error.includes("Vendors can insert products to own APPROVED shop")) {
-                setError("You cannot upload products because your shop is not approved or is suspended.")
-            } else {
-                setError(res.error)
-            }
-        }
+    if (!shop) {
+        redirect('/dashboard')
     }
 
     return (
@@ -37,80 +31,11 @@ export default function NewProductPage() {
             </Link>
 
             <h1 className="text-2xl font-bold mb-8 text-gray-900 dark:text-white">Add New Product</h1>
+            <p className="mb-6 text-sm text-gray-500 dark:text-gray-400">
+                You are adding a product to your <strong className="text-purple-600 dark:text-purple-400">{shop.category}</strong> shop.
+            </p>
 
-            <div className="bg-white dark:bg-neutral-900 p-8 rounded-xl shadow-sm border border-gray-100 dark:border-neutral-800">
-                <form action={handleSubmit} className="space-y-6">
-                    {/* Use 'images' key for the JSON string */}
-                    <input type="hidden" name="images" value={JSON.stringify(images)} />
-
-                    <div>
-                        <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Product Name</label>
-                        <input
-                            name="name"
-                            required
-                            className="w-full border border-gray-300 dark:border-gray-700 rounded-md p-2 bg-transparent focus:ring-2 focus:ring-purple-500 focus:outline-none dark:text-white"
-                            placeholder="Vintage Denim Jacket"
-                        />
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                        <div>
-                            <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Price (ETB)</label>
-                            <input
-                                name="price"
-                                type="number"
-                                step="0.01"
-                                required
-                                className="w-full border border-gray-300 dark:border-gray-700 rounded-md p-2 bg-transparent focus:ring-2 focus:ring-purple-500 focus:outline-none dark:text-white"
-                                placeholder="49.99"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Stock Quantity</label>
-                            <input
-                                name="stock"
-                                type="number"
-                                required
-                                className="w-full border border-gray-300 dark:border-gray-700 rounded-md p-2 bg-transparent focus:ring-2 focus:ring-purple-500 focus:outline-none dark:text-white"
-                                placeholder="100"
-                            />
-                        </div>
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Category</label>
-                        <select
-                            name="category"
-                            defaultValue=""
-                            className="w-full border border-gray-300 dark:border-gray-700 rounded-md p-2 bg-transparent focus:ring-2 focus:ring-purple-500 focus:outline-none dark:text-white dark:bg-neutral-800"
-                        >
-                            <option value="" disabled>Select a category</option>
-                            <option value="Traditional Clothing">Traditional Clothing</option>
-                            <option value="Modern Fashion">Modern Fashion</option>
-                            <option value="Kids & Infants">Kids & Infants</option>
-                            <option value="Shoes">Shoes</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium mb-1 text-gray-700 dark:text-gray-300">Description</label>
-                        <textarea
-                            name="description"
-                            rows={3}
-                            className="w-full border border-gray-300 dark:border-gray-700 rounded-md p-2 bg-transparent focus:ring-2 focus:ring-purple-500 focus:outline-none dark:text-white"
-                            placeholder="Product details..."
-                        />
-                    </div>
-
-                    <MultiImageUpload onUpload={setImages} label="Product Images" maxFiles={3} />
-
-                    {error && <p className="text-red-500 text-sm">{error}</p>}
-
-                    <button type="submit" className="w-full bg-purple-600 text-white py-2 rounded-md hover:bg-purple-700 font-medium transition-colors shadow-sm">
-                        Create Product
-                    </button>
-                </form>
-            </div>
+            <NewProductForm shopCategory={shop.category as ShopCategory} />
         </div>
     )
 }
