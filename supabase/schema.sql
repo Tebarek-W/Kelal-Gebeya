@@ -180,7 +180,7 @@ create policy "Users can insert their own order items" on public.order_items for
 
 -- 4. Triggers and Functions
 
--- Handle New User (with Admin logic)
+-- Handle New User
 create or replace function public.handle_new_user()
 returns trigger as $$
 begin
@@ -188,11 +188,7 @@ begin
   values (
     new.id, 
     new.raw_user_meta_data->>'full_name', 
-    case 
-      when new.email = 'baruck12@gmail.com' then 'admin'::public.user_role
-      when new.email = 'admin@kelalgebeya.com' then 'admin'::public.user_role
-      else 'buyer'::public.user_role
-    end
+    'buyer'::public.user_role
   );
   return new;
 end;

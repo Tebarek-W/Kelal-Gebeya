@@ -2,31 +2,68 @@ import { createClient } from '@/lib/supabase/server'
 import ProductCard from '@/components/ProductCard'
 import ProductFilters from '@/components/ProductFilters'
 import Link from 'next/link'
-import { ShoppingBag, ChevronRight, Search } from 'lucide-react'
+import { ShoppingBag } from 'lucide-react'
+import { PRODUCT_CATEGORIES } from '@/lib/categories'
 
 export default async function Home({ searchParams }: { searchParams: Promise<{ [key: string]: string | string[] | undefined }> }) {
   const supabase = await createClient()
   const params = await searchParams
 
   const q = typeof params.q === 'string' ? params.q : ''
-  const category = typeof params.category === 'string' ? params.category : ''
+  const category = params.category
   const min = typeof params.min === 'string' ? params.min : ''
   const max = typeof params.max === 'string' ? params.max : ''
+  const sort = typeof params.sort === 'string' ? params.sort : 'newest'
 
   // Fetch products with filters
   let productQuery = supabase.from('products').select('*, shops(name)')
+
+  // Search by keyword
   if (q) productQuery = productQuery.ilike('name', `%${q}%`)
-  if (category) productQuery = productQuery.eq('category', category)
+
+  // Hierarchical Category Filtering
+  if (category) {
+    if (typeof category === 'string') {
+      // Check if it's a main category (like 'Fashion')
+      const subCategories = PRODUCT_CATEGORIES[category as keyof typeof PRODUCT_CATEGORIES]
+      if (subCategories) {
+        // If it's a main category, fetch all items in its sub-categories
+        productQuery = productQuery.in('category', subCategories)
+      } else {
+        // If it's a direct sub-category (like 'Cultural'), filter exactly
+        productQuery = productQuery.eq('category', category)
+      }
+    }
+  }
+
+  // Price range
   if (min) productQuery = productQuery.gte('price', parseFloat(min))
   if (max) productQuery = productQuery.lte('price', parseFloat(max))
-  const { data: products } = await productQuery.order('created_at', { ascending: false }).limit(20)
 
-  const categories = [
-    { name: 'Fashion', count: '500+ Items', description: 'Clothing & Shoes' },
-    { name: 'Electronics', count: '200+ Items', description: 'Gadgets & Core Tech' },
-    { name: 'Jewelry', count: '150+ Items', description: 'Gems & Watches' },
-    { name: 'Handmade Crafts', count: '300+ Items', description: 'Art & Heritage' },
-  ]
+  // Sorting
+  switch (sort) {
+    case 'price-asc':
+      productQuery = productQuery.order('price', { ascending: true })
+      break
+    case 'price-desc':
+      productQuery = productQuery.order('price', { ascending: false })
+      break
+    case 'oldest':
+      productQuery = productQuery.order('created_at', { ascending: true })
+      break
+    default:
+      productQuery = productQuery.order('created_at', { ascending: false })
+  }
+
+  const { data: products } = await productQuery.limit(24)
+
+  const categories = Object.keys(PRODUCT_CATEGORIES).map(name => ({
+    name,
+    description: name === 'Fashion' ? 'Clothing & Shoes' :
+      name === 'Electronics' ? 'Gadgets & Core Tech' :
+        name === 'Jewelry' ? 'Gems & Watches' : 'Art & Heritage',
+    count: 'Explore Collection'
+  }))
 
   return (
     <div className="bg-white dark:bg-black min-h-screen">
@@ -94,18 +131,25 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
         </div>
       </section>
 
+      {/* 2.5 Dynamic Search & Filter Bar */}
+      <section className="bg-neutral-50/50 dark:bg-white/[0.02] border-b border-neutral-100 dark:border-neutral-900 py-10">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <p className="text-[10px] uppercase tracking-[0.3em] text-neutral-400 font-bold mb-6">
+            Refine your search in {category || 'all categories'}
+          </p>
+          <ProductFilters />
+        </div>
+      </section>
+
       {/* 3. Main Catalog Section */}
       <section id="catalog" className="py-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-12">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
             <div>
-              <p className="text-[10px] uppercase tracking-[0.2em] text-neutral-400 font-bold mb-2">Marketplace</p>
+              <p className="text-[10px] uppercase tracking-[0.2em] text-neutral-400 font-bold mb-2">Marketplace Results</p>
               <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
-                {q ? `Search: ${q}` : category || 'Recent Products'}
+                {q ? `&quot;${q}&quot;` : category || 'All Products'}
               </h2>
-            </div>
-            <div className="flex-1 max-w-xs w-full">
-              <ProductFilters />
             </div>
           </div>
         </div>
@@ -129,7 +173,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
       <section className="py-32 bg-neutral-50 dark:bg-neutral-900/50">
         <div className="max-w-4xl mx-auto px-4 text-center">
           <h2 className="text-2xl sm:text-3xl font-medium text-gray-900 dark:text-white italic leading-relaxed">
-            "Connecting Ethiopia's rich heritage with modern innovation through one trusted, community-driven marketplace."
+            &quot;Connecting Ethiopia&apos;s rich heritage with modern innovation through one trusted, community-driven marketplace.&quot;
           </h2>
           <div className="mt-12 flex items-center justify-center gap-8 grayscale opacity-40">
             <span className="font-bold tracking-tighter text-2xl italic">EST. 2026</span>

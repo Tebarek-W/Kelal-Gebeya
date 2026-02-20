@@ -19,10 +19,29 @@ const initialState: CartState = {
     isOpen: false,
 }
 
+// Helper to save to local storage
+const saveToLocalStorage = (items: CartItem[]) => {
+    if (typeof window !== 'undefined') {
+        localStorage.setItem('kelal_cart', JSON.stringify(items))
+    }
+}
+
 const cartSlice = createSlice({
     name: 'cart',
     initialState,
     reducers: {
+        initializeCart: (state) => {
+            if (typeof window !== 'undefined') {
+                const savedCart = localStorage.getItem('kelal_cart')
+                if (savedCart) {
+                    try {
+                        state.items = JSON.parse(savedCart)
+                    } catch (e) {
+                        console.error('Failed to parse cart from local storage:', e)
+                    }
+                }
+            }
+        },
         addItem: (state, action: PayloadAction<CartItem>) => {
             const existingItem = state.items.find((item) => item.id === action.payload.id)
             if (existingItem) {
@@ -30,9 +49,11 @@ const cartSlice = createSlice({
             } else {
                 state.items.push(action.payload)
             }
+            saveToLocalStorage(state.items)
         },
         removeItem: (state, action: PayloadAction<string>) => {
             state.items = state.items.filter((item) => item.id !== action.payload)
+            saveToLocalStorage(state.items)
         },
         updateQuantity: (state, action: PayloadAction<{ id: string; quantity: number }>) => {
             const item = state.items.find((item) => item.id === action.payload.id)
@@ -42,9 +63,11 @@ const cartSlice = createSlice({
                     state.items = state.items.filter((i) => i.id !== action.payload.id)
                 }
             }
+            saveToLocalStorage(state.items)
         },
         clearCart: (state) => {
             state.items = []
+            saveToLocalStorage(state.items)
         },
         toggleCart: (state) => {
             state.isOpen = !state.isOpen
@@ -52,5 +75,5 @@ const cartSlice = createSlice({
     },
 })
 
-export const { addItem, removeItem, updateQuantity, clearCart, toggleCart } = cartSlice.actions
+export const { initializeCart, addItem, removeItem, updateQuantity, clearCart, toggleCart } = cartSlice.actions
 export default cartSlice.reducer
