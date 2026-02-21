@@ -20,7 +20,7 @@ export default async function ShopPage({ params }: { params: Promise<{ id: strin
     // Fetch products for this shop
     const { data: products } = await supabase
         .from('products')
-        .select('*, shops(name)')
+        .select('*, shops(name, shop_reviews(rating))')
         .eq('shop_id', id)
         .order('created_at', { ascending: false })
 

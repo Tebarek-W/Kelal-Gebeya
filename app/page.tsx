@@ -16,7 +16,7 @@ export default async function Home({ searchParams }: { searchParams: Promise<{ [
   const sort = typeof params.sort === 'string' ? params.sort : 'newest'
 
   // Fetch products with filters
-  let productQuery = supabase.from('products').select('*, shops(name)')
+  let productQuery = supabase.from('products').select('*, shops(name, shop_reviews(rating))')
 
   // Search by keyword
   if (q) productQuery = productQuery.ilike('name', `%${q}%`)

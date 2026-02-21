@@ -2,13 +2,15 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, Store, LogOut, ShieldCheck } from 'lucide-react'
+import { LayoutDashboard, Store, LogOut, ShieldCheck, Settings, CreditCard } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 
 const navigation = [
     { name: 'Overview', href: '/admin', icon: LayoutDashboard },
     { name: 'Vendors', href: '/admin/vendors', icon: Store },
+    { name: 'Subscriptions', href: '/admin/subscriptions', icon: CreditCard },
+    { name: 'Settings', href: '/admin/settings', icon: Settings },
 ]
 
 export default function AdminSidebar() {

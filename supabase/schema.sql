@@ -93,6 +93,50 @@ create table if not exists public.order_items (
 
 alter table public.order_items enable row level security;
 
+-- Shop Reviews
+create table if not exists public.shop_reviews (
+  id uuid default gen_random_uuid() primary key,
+  shop_id uuid references public.shops(id) on delete cascade not null,
+  buyer_id uuid references public.profiles(id) on delete cascade not null,
+  order_id uuid references public.orders(id) on delete cascade not null,
+  rating integer not null check (rating >= 1 and rating <= 5),
+  comment text,
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null,
+  unique (order_id) -- One review per order
+);
+
+alter table public.shop_reviews enable row level security;
+
+-- System Settings
+create table if not exists public.system_settings (
+  key text primary key,
+  value jsonb not null
+);
+
+alter table public.system_settings enable row level security;
+
+-- Vendor Subscriptions
+create table if not exists public.vendor_subscriptions (
+  shop_id uuid references public.shops(id) on delete cascade not null primary key,
+  expires_at timestamp with time zone not null,
+  tier text default 'standard',
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
+
+alter table public.vendor_subscriptions enable row level security;
+
+-- Subscription Payments
+create table if not exists public.subscription_payments (
+  id uuid default gen_random_uuid() primary key,
+  shop_id uuid references public.shops(id) on delete cascade not null,
+  amount numeric not null,
+  payment_reference text unique not null,
+  status text default 'completed',
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
+
+alter table public.subscription_payments enable row level security;
+
 -- 3. RLS Policies
 
 -- Drop existing policies first to ensure clean state
@@ -178,6 +222,33 @@ create policy "Users can insert their own order items" on public.order_items for
   exists (select 1 from public.orders where id = order_id and buyer_id = auth.uid())
 );
 
+-- Shop Reviews
+create policy "Shop reviews are viewable by everyone" on public.shop_reviews for select using (true);
+create policy "Buyers can insert review for their completed order" on public.shop_reviews for insert with check (
+  auth.uid() = buyer_id and
+  exists (
+    select 1 from public.orders 
+    where id = order_id 
+      and buyer_id = auth.uid() 
+      and shop_id = shop_reviews.shop_id 
+      and status = 'completed'
+  )
+);
+
+-- System Settings
+create policy "System settings are viewable by everyone" on public.system_settings for select using (true);
+create policy "Admins can update system settings" on public.system_settings for update using ((select role from public.profiles where id = auth.uid()) = 'admin');
+
+-- Vendor Subscriptions
+create policy "Vendor subscriptions viewable by everyone" on public.vendor_subscriptions for select using (true);
+create policy "Admins can update subscriptions" on public.vendor_subscriptions for update using ((select role from public.profiles where id = auth.uid()) = 'admin');
+
+-- Subscription Payments
+create policy "Vendors can view own payments" on public.subscription_payments for select using (
+  exists (select 1 from public.shops where id = shop_id and owner_id = auth.uid())
+);
+create policy "Admins can view all payments" on public.subscription_payments for select using ((select role from public.profiles where id = auth.uid()) = 'admin');
+
 -- 4. Triggers and Functions
 
 -- Handle New User
@@ -217,3 +288,38 @@ $$;
 
 -- Grant execute to authenticated
 grant execute on function public.become_vendor to authenticated;
+
+-- Process Subscription Payment RPC
+create or replace function public.process_subscription_payment(
+  p_shop_id uuid,
+  p_amount numeric,
+  p_reference text,
+  p_days int default 30
+)
+returns void
+language plpgsql
+security definer
+as $$
+declare
+  v_expires_at timestamp with time zone;
+begin
+  -- 1. Insert payment (will fail if p_reference already exists due to unique constraint)
+  insert into public.subscription_payments (shop_id, amount, payment_reference)
+  values (p_shop_id, p_amount, p_reference);
+
+  -- 2. Determine new expiration date
+  select expires_at into v_expires_at from public.vendor_subscriptions where shop_id = p_shop_id;
+  
+  if v_expires_at is null then
+    v_expires_at := now() + (p_days || ' days')::interval;
+    insert into public.vendor_subscriptions (shop_id, expires_at) values (p_shop_id, v_expires_at);
+  else
+    if v_expires_at > now() then
+      v_expires_at := v_expires_at + (p_days || ' days')::interval;
+    else
+      v_expires_at := now() + (p_days || ' days')::interval;
+    end if;
+    update public.vendor_subscriptions set expires_at = v_expires_at where shop_id = p_shop_id;
+  end if;
+end;
+$$;

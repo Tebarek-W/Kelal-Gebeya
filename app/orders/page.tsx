@@ -1,8 +1,8 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { getBuyerOrders } from './actions'
-import { Package, Clock, CheckCircle, Loader2, ShoppingBag } from 'lucide-react'
+import { getBuyerOrders, submitReview } from './actions'
+import { Package, Clock, CheckCircle, Loader2, ShoppingBag, Star, X } from 'lucide-react'
 import { toast } from 'react-toastify'
 import Link from 'next/link'
 
@@ -18,6 +18,7 @@ interface OrderItem {
 
 interface Order {
     id: string
+    shop_id: string
     total_price: number
     status: 'pending' | 'processing' | 'completed'
     payment_method: string | null
@@ -27,17 +28,25 @@ interface Order {
         logo_url: string | null
     } | null
     order_items: OrderItem[]
+    shop_reviews?: {
+        id: string
+        rating: number
+        comment: string | null
+        created_at: string
+    }[]
 }
 
 export default function BuyerOrdersPage() {
     const [orders, setOrders] = useState<Order[]>([])
     const [loading, setLoading] = useState(true)
+    
+    const [reviewModalOpen, setReviewModalOpen] = useState(false)
+    const [selectedOrderForReview, setSelectedOrderForReview] = useState<Order | null>(null)
+    const [rating, setRating] = useState(5)
+    const [comment, setComment] = useState('')
+    const [submittingReview, setSubmittingReview] = useState(false)
 
-    useEffect(() => {
-        loadOrders()
-    }, [])
-
-    async function loadOrders() {
+    const loadOrders = async () => {
         setLoading(true)
         const result = await getBuyerOrders()
         if (result.error) {
@@ -46,6 +55,35 @@ export default function BuyerOrdersPage() {
             setOrders(result.orders as Order[])
         }
         setLoading(false)
+    }
+
+    useEffect(() => {
+        loadOrders()
+    }, [])
+
+    const handleSubmitReview = async (e: React.FormEvent) => {
+        e.preventDefault()
+        if (!selectedOrderForReview) return
+
+        setSubmittingReview(true)
+        const result = await submitReview(
+            selectedOrderForReview.id,
+            selectedOrderForReview.shop_id,
+            rating,
+            comment
+        )
+
+        if (result.error) {
+            toast.error(result.error)
+            setSubmittingReview(false)
+        } else {
+            toast.success('Review submitted successfully!')
+            setReviewModalOpen(false)
+            setSelectedOrderForReview(null)
+            setRating(5)
+            setComment('')
+            loadOrders() // Reload orders to get updated reviews
+        }
     }
 
     const getStatusBadge = (status: string) => {
@@ -102,9 +140,35 @@ export default function BuyerOrdersPage() {
                                             <p className="text-sm text-gray-500">{new Date(order.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
                                         </div>
                                     </div>
-                                    <div className="text-right">
+                                    <div className="text-right flex flex-col items-end gap-2">
                                         {getStatusBadge(order.status)}
-                                        <p className="text-2xl font-bold text-gray-900 dark:text-white mt-2">{order.total_price.toFixed(2)} ETB</p>
+                                        <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">{order.total_price.toFixed(2)} ETB</p>
+                                        
+                                        {order.status === 'completed' && (!order.shop_reviews || order.shop_reviews.length === 0) && (
+                                            <button
+                                                onClick={() => {
+                                                    setSelectedOrderForReview(order)
+                                                    setRating(5)
+                                                    setComment('')
+                                                    setReviewModalOpen(true)
+                                                }}
+                                                className="text-sm px-4 py-2 bg-purple-100 text-purple-700 hover:bg-purple-200 dark:bg-purple-900/30 dark:text-purple-400 dark:hover:bg-purple-900/50 rounded-lg font-medium transition-colors flex items-center gap-2"
+                                            >
+                                                <Star className="w-4 h-4" />
+                                                Leave a Review
+                                            </button>
+                                        )}
+                                        
+                                        {order.shop_reviews && order.shop_reviews.length > 0 && (
+                                            <div className="flex flex-col items-end gap-1 mt-1">
+                                                <div className="flex items-center gap-1 text-sm text-yellow-500">
+                                                    {Array.from({ length: 5 }).map((_, i) => (
+                                                        <Star key={i} className={`w-4 h-4 ${i < order.shop_reviews![0].rating ? 'fill-current' : 'text-gray-300 dark:text-neutral-700'}`} />
+                                                    ))}
+                                                </div>
+                                                <span className="text-xs text-gray-500 line-clamp-1 italic">{order.shop_reviews[0].comment ? `"${order.shop_reviews[0].comment}"` : "Shop Reviewed"}</span>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             </div>
@@ -144,6 +208,71 @@ export default function BuyerOrdersPage() {
                             </div>
                         </div>
                     ))}
+                </div>
+            )}
+
+            {/* Review Modal */}
+            {reviewModalOpen && selectedOrderForReview && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+                    <div className="bg-white dark:bg-neutral-900 rounded-xl max-w-md w-full p-6 shadow-xl border border-gray-100 dark:border-neutral-800">
+                        <div className="flex justify-between items-center mb-2">
+                            <h3 className="text-lg font-bold text-gray-900 dark:text-white">Rate your purchase</h3>
+                            <button onClick={() => setReviewModalOpen(false)} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                                <X className="w-5 h-5" />
+                            </button>
+                        </div>
+                        <p className="text-sm text-gray-500 mb-6">How was your experience with <span className="font-semibold">{selectedOrderForReview.shops?.name || 'this shop'}</span>?</p>
+                        
+                        <form onSubmit={handleSubmitReview}>
+                            <div className="flex items-center justify-center gap-2 mb-6 cursor-pointer">
+                                {[1, 2, 3, 4, 5].map((star) => (
+                                    <button
+                                        key={star}
+                                        type="button"
+                                        onClick={() => setRating(star)}
+                                        className="p-1 focus:outline-none transition-transform hover:scale-110"
+                                    >
+                                        <Star 
+                                            className={`w-10 h-10 ${star <= rating ? 'text-yellow-400 fill-current' : 'text-gray-300 dark:text-neutral-700'}`} 
+                                        />
+                                    </button>
+                                ))}
+                            </div>
+
+                            <div className="mb-6">
+                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                    Comment (Optional)
+                                </label>
+                                <textarea
+                                    value={comment}
+                                    onChange={(e) => setComment(e.target.value)}
+                                    rows={4}
+                                    maxLength={500}
+                                    className="w-full px-4 py-3 bg-gray-50 dark:bg-neutral-950 border border-gray-200 dark:border-neutral-800 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all text-gray-900 dark:text-white resize-none"
+                                    placeholder="Tell others what you think about the vendor and your order..."
+                                />
+                            </div>
+
+                            <div className="flex gap-3 justify-end">
+                                <button
+                                    type="button"
+                                    onClick={() => setReviewModalOpen(false)}
+                                    className="px-4 py-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-neutral-800 rounded-lg font-medium transition-colors"
+                                    disabled={submittingReview}
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="submit"
+                                    disabled={submittingReview}
+                                    className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                                >
+                                    {submittingReview && <Loader2 className="w-4 h-4 animate-spin" />}
+                                    Submit Review
+                                </button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             )}
         </div>

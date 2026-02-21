@@ -15,12 +15,21 @@ export async function createProduct(formData: FormData) {
     // Get User's Shop ID and Category
     const { data: shop } = await supabase
         .from('shops')
-        .select('id, category')
+        .select(`
+            id, 
+            category,
+            vendor_subscriptions ( expires_at )
+        `)
         .eq('owner_id', user.id)
         .single()
 
     if (!shop) {
         throw new Error('Shop not found')
+    }
+
+    const subs = shop.vendor_subscriptions as any[]
+    if (!subs || subs.length === 0 || new Date(subs[0].expires_at) < new Date()) {
+        return { error: 'Action denied: Your vendor subscription is inactive or has expired.' }
     }
 
     const name = formData.get('name') as string
@@ -80,7 +89,8 @@ export async function updateProduct(productId: string, formData: FormData) {
             shop_id, 
             shops (
                 owner_id,
-                category
+                category,
+                vendor_subscriptions ( expires_at )
             )
         `)
         .eq('id', productId)
@@ -89,6 +99,11 @@ export async function updateProduct(productId: string, formData: FormData) {
     const shop = product?.shops as any
     if (!product || shop?.owner_id !== user.id) {
         throw new Error('Unauthorized')
+    }
+
+    const subs = shop.vendor_subscriptions as any[]
+    if (!subs || subs.length === 0 || new Date(subs[0].expires_at) < new Date()) {
+        return { error: 'Action denied: Your vendor subscription is inactive or has expired.' }
     }
 
     const name = formData.get('name') as string

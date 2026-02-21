@@ -16,12 +16,22 @@ export default async function NewProductPage() {
     // Get User's Shop Category
     const { data: shop } = await supabase
         .from('shops')
-        .select('category')
+        .select(`
+            category,
+            vendor_subscriptions(expires_at)
+        `)
         .eq('owner_id', user.id)
         .single()
 
     if (!shop) {
         redirect('/dashboard')
+    }
+
+    const sub = shop.vendor_subscriptions?.[0] || shop.vendor_subscriptions || null
+    const activeSub = Array.isArray(sub) ? sub[0] : sub
+    let isExpired = true
+    if (activeSub && activeSub.expires_at) {
+        isExpired = new Date(activeSub.expires_at) <= new Date()
     }
 
     return (
@@ -31,11 +41,19 @@ export default async function NewProductPage() {
             </Link>
 
             <h1 className="text-2xl font-bold mb-8 text-gray-900 dark:text-white">Add New Product</h1>
-            <p className="mb-6 text-sm text-gray-500 dark:text-gray-400">
-                You are adding a product to your <strong className="text-purple-600 dark:text-purple-400">{shop.category}</strong> shop.
-            </p>
-
-            <NewProductForm shopCategory={shop.category as ShopCategory} />
+            
+            {isExpired ? (
+                <div className="bg-red-50 text-red-700 p-6 rounded-lg text-center font-medium">
+                    Your vendor subscription has expired. You must renew before adding new products.
+                </div>
+            ) : (
+                <>
+                    <p className="mb-6 text-sm text-gray-500 dark:text-gray-400">
+                        You are adding a product to your <strong className="text-purple-600 dark:text-purple-400">{shop.category}</strong> shop.
+                    </p>
+                    <NewProductForm shopCategory={shop.category as ShopCategory} />
+                </>
+            )}
         </div>
     )
 }

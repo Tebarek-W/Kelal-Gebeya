@@ -8,15 +8,24 @@ export default async function ProductsPage() {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
-    // Get User's Shop ID first
     const { data: shop } = await supabase
         .from('shops')
-        .select('id')
+        .select(`
+            id,
+            vendor_subscriptions(expires_at)
+        `)
         .eq('owner_id', user?.id)
         .single()
 
     if (!shop) {
         return <div className="text-center py-10">You don't have a shop yet.</div>
+    }
+
+    const sub = shop.vendor_subscriptions?.[0] || shop.vendor_subscriptions || null
+    const activeSub = Array.isArray(sub) ? sub[0] : sub
+    let isExpired = true
+    if (activeSub && activeSub.expires_at) {
+        isExpired = new Date(activeSub.expires_at) <= new Date()
     }
 
     const { data: products } = await supabase
@@ -29,12 +38,22 @@ export default async function ProductsPage() {
         <div>
             <div className="flex justify-between items-center mb-8">
                 <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Your Products</h1>
-                <Link
-                    href="/dashboard/products/new"
-                    className="flex items-center gap-2 bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700 transition-colors shadow-sm text-sm font-medium"
-                >
-                    <Plus className="w-4 h-4" /> Add Product
-                </Link>
+                {isExpired ? (
+                    <button
+                        disabled
+                        className="flex items-center gap-2 bg-gray-400 text-white px-4 py-2 rounded-md cursor-not-allowed opacity-50 shadow-sm text-sm font-medium"
+                        title="Subscription expired. Please renew."
+                    >
+                        <Plus className="w-4 h-4" /> Add Product
+                    </button>
+                ) : (
+                    <Link
+                        href="/dashboard/products/new"
+                        className="flex items-center gap-2 bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700 transition-colors shadow-sm text-sm font-medium"
+                    >
+                        <Plus className="w-4 h-4" /> Add Product
+                    </Link>
+                )}
             </div>
 
             <div className="bg-white dark:bg-neutral-900 rounded-xl shadow-sm border border-gray-100 dark:border-neutral-800 overflow-hidden">

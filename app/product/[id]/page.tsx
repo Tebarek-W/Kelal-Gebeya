@@ -2,25 +2,6 @@ import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import ProductGallery from '@/components/ProductGallery'
 import ProductActions from '@/components/ProductActions'
-
-interface Product {
-    id: string
-    shop_id: string
-    name: string
-    price: number
-    images: string[]
-    stock: number
-    category: string
-    description?: string
-    shops?: {
-        name: string
-        logo_url: string | null
-        contact_phone: string | null
-        address: string | null
-        category: string | null
-    } | null
-}
-
 export default async function ProductPage({ params }: { params: Promise<{ id: string }> }) {
     const supabase = await createClient()
     const { id } = await params
@@ -38,6 +19,16 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
             </div>
         )
     }
+
+    const { data: reviews } = await supabase
+        .from('shop_reviews')
+        .select('rating')
+        .eq('shop_id', product.shop_id)
+
+    const reviewCount = reviews?.length || 0
+    const averageRating = reviewCount > 0 
+        ? (reviews!.reduce((acc, rev) => acc + rev.rating, 0) / reviewCount).toFixed(1)
+        : 'New'
 
     const images = product.images || []
 
@@ -96,8 +87,8 @@ export default async function ProductPage({ params }: { params: Promise<{ id: st
                                         </div>
                                         <div className="flex items-center gap-1 bg-white dark:bg-black px-2 py-1 rounded-full border border-gray-200 dark:border-neutral-800">
                                             <span className="text-yellow-400">★</span>
-                                            <span className="text-sm font-bold text-gray-900 dark:text-white">4.8</span>
-                                            <span className="text-xs text-gray-500">(124)</span>
+                                            <span className="text-sm font-bold text-gray-900 dark:text-white">{averageRating}</span>
+                                            {reviewCount > 0 && <span className="text-xs text-gray-500">({reviewCount})</span>}
                                         </div>
                                     </div>
 

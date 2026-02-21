@@ -30,6 +30,27 @@ export async function checkout(cart: CartItem[], paymentMethod: string) {
         items.push(item)
         shopOrders.set(item.shopId, items)
     })
+    
+    const shopIds = Array.from(shopOrders.keys())
+
+    // Check shop subscriptions
+    const { data: subs, error: subsError } = await supabase
+        .from('vendor_subscriptions')
+        .select('shop_id, expires_at')
+        .in('shop_id', shopIds)
+
+    if (subsError) {
+        return { error: 'Failed to verify shop statuses.' }
+    }
+
+    const validShopSubs = new Map(subs?.map(s => [s.shop_id, s.expires_at]))
+
+    for (const shopId of shopIds) {
+        const expiresAt = validShopSubs.get(shopId)
+        if (!expiresAt || new Date(expiresAt) < new Date()) {
+            return { error: 'Checkout failed: Processing is paused for one or more shops in your cart. Please remove their products to continue.' }
+        }
+    }
 
     try {
         for (const [shopId, items] of shopOrders) {
