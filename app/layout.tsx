@@ -1,24 +1,30 @@
-import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
-import './globals.css'
-import StoreProvider from '@/components/StoreProvider'
-import AuthProvider from '@/components/AuthProvider'
-import Navbar from '@/components/Navbar'
-import Footer from '@/components/Footer'
-import { ToastContainer } from 'react-toastify'
-import 'react-toastify/dist/ReactToastify.css'
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
+import "./globals.css";
+import StoreProvider from "@/components/StoreProvider";
+import AuthProvider from "@/components/AuthProvider";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
-const inter = Inter({ subsets: ['latin'] })
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: 'Kelal Gebeya - Ethiopia\'s Premier Fashion Marketplace',
-  description: 'Shop authentic traditional Ethiopian clothing, modern fashion, and footwear from local designers.',
-}
+  title: "Kelal Gebeya - Ethiopia's Premier Fashion Marketplace",
+  description:
+    "Shop authentic traditional Ethiopian clothing, modern fashion, and footwear from local designers.",
+  icons: {
+    icon: "/images/logo.png",
+    shortcut: "/images/logo.png",
+    apple: "/images/logo.png",
+  },
+};
 
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
   return (
     <html lang="en">
@@ -46,5 +52,5 @@ export default function RootLayout({
         </StoreProvider>
       </body>
     </html>
-  )
+  );
 }
