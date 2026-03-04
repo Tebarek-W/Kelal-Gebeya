@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, Store, LogOut, ShieldCheck, Settings, CreditCard } from 'lucide-react'
+import { LayoutDashboard, Store, LogOut, Settings, CreditCard } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 
@@ -26,9 +26,10 @@ export default function AdminSidebar() {
 
     return (
         <div className="flex h-full w-64 flex-col bg-zinc-900 border-r border-zinc-800">
-            <div className="flex h-16 items-center px-6 border-b border-zinc-800">
-                <ShieldCheck className="h-8 w-8 text-white mr-2" />
-                <span className="text-lg font-bold text-white">Admin</span>
+            <div className="flex h-16 items-center px-6">
+                <Link href="/" className="flex items-center">
+                    <img src="/images/logo.png" alt="Logo" className="h-8 object-contain" />
+                </Link>
             </div>
             <div className="flex flex-1 flex-col overflow-y-auto py-4">
                 <nav className="flex-1 px-4 space-y-2">

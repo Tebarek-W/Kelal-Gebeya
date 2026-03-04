@@ -149,7 +149,7 @@ export default function Navbar() {
               <img
                 src="/images/logo.png"
                 alt="Kelal Gebeya"
-                className="h-8 object-contain"
+                className="h-10 object-contain"
               />
               <span className="sr-only">Kelal Gebeya</span>
             </Link>

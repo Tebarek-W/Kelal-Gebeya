@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import Link from 'next/link'
 import DashboardChart from './DashboardChart'
 import { ShoppingBag, DollarSign, Package, TrendingUp } from 'lucide-react'
 
@@ -25,10 +26,10 @@ export default async function DashboardPage() {
                     <ShoppingBag className="w-8 h-8 text-purple-600" />
                 </div>
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Setup Your Shop</h2>
-                <p className="text-gray-500 mb-6 max-w-md">You haven't created a shop yet. Start selling your products today!</p>
-                <a href="/shop/create" className="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition-colors">
+                <p className="text-gray-500 mb-6 max-w-md">You haven&apos;t created a shop yet. Start selling your products today!</p>
+                <Link href="/shop/create" className="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition-colors">
                     Create Shop
-                </a>
+                </Link>
             </div>
         )
     }
@@ -58,7 +59,7 @@ export default async function DashboardPage() {
                     <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Dashboard Overview</h1>
                     <p className="text-gray-500 text-sm mt-1">Welcome back to {shop.name} analytics.</p>
                 </div>
-                <div className="flex items-center gap-3 bg-white dark:bg-neutral-900 px-4 py-2 rounded-full shadow-sm border border-gray-100 dark:border-neutral-800">
+                <div className="flex items-center gap-3 px-2 py-2">
                     {shop.logo_url ? (
                         <img src={shop.logo_url} alt={shop.name} className="w-8 h-8 rounded-full object-cover" />
                     ) : (
