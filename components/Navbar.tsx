@@ -145,13 +145,13 @@ export default function Navbar() {
                 <Menu className="w-6 h-6" />
               )}
             </button>
-            <Link href="/" className="flex items-center gap-2">
-              <img
-                src="/images/logo.png"
-                alt="Kelal Gebeya"
-                className="h-10 object-contain"
-              />
-              <span className="sr-only">Kelal Gebeya</span>
+            <Link href="/" className="flex items-center gap-2.5 group">
+              <div className="flex items-center justify-center w-9 h-9 rounded-lg bg-gradient-to-br from-purple-600 to-pink-600 text-white font-bold text-base shadow-sm group-hover:scale-105 transition-transform">
+                KG
+              </div>
+              <span className="text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent tracking-tight">
+                Kelal Gebeya
+              </span>
             </Link>
           </div>
 

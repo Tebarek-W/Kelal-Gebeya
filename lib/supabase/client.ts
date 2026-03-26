@@ -7,7 +7,9 @@ export function createClient() {
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
   if (!url || !key) {
-    console.error('Supabase environment variables are missing. Initialization failed.')
+    console.error('Supabase environment variables are missing. Initialization failed.', { url, key })
+  } else {
+    console.log('Initializing Supabase client with URL:', url)
   }
 
   if (!client) {

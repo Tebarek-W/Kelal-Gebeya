@@ -27,8 +27,13 @@ export default function AdminSidebar() {
     return (
         <div className="flex h-full w-64 flex-col bg-zinc-900 border-r border-zinc-800">
             <div className="flex h-16 items-center px-6">
-                <Link href="/" className="flex items-center">
-                    <img src="/images/logo.png" alt="Logo" className="h-8 object-contain" />
+                <Link href="/" className="flex items-center gap-2.5 group">
+                    <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-purple-600 to-pink-600 text-white font-bold text-sm shadow-sm group-hover:scale-105 transition-transform">
+                        KG
+                    </div>
+                    <span className="text-lg font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent tracking-tight">
+                        Kelal Gebeya
+                    </span>
                 </Link>
             </div>
             <div className="flex flex-1 flex-col overflow-y-auto py-4">

@@ -17,12 +17,17 @@ export default function Footer() {
           <div className="space-y-4">
             <Link
               href="/"
-              className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent"
+              className="flex items-center gap-2 group"
             >
-              Kelal Gebeya
+              <div className="flex items-center justify-center w-7 h-7 rounded bg-gradient-to-br from-purple-600 to-pink-600 text-white font-bold text-xs shadow-sm group-hover:scale-105 transition-transform">
+                KG
+              </div>
+              <span className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                Kelal Gebeya
+              </span>
             </Link>
             <p className="text-gray-500 dark:text-gray-400 text-sm">
-              Ethiopia's leading multi-vendor marketplace for unique fashion and
+              Ethiopia&apos;s leading multi-vendor marketplace for unique fashion and
               lifestyle products.
             </p>
             <div className="flex space-x-4">

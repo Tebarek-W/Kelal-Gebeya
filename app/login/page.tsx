@@ -14,35 +14,55 @@ export default function LoginPage() {
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault()
         setError('')
+        console.log('Login attempt started for:', email)
         try {
-            const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+            console.log('Calling signInWithPassword...')
+            
+            // Timeout promise
+            const timeoutPromise = new Promise((_, reject) => 
+                setTimeout(() => reject(new Error('SUPABASE_AUTH_TIMEOUT')), 10000)
+            );
+
+            const { data, error } = await Promise.race([
+                supabase.auth.signInWithPassword({ email, password }),
+                timeoutPromise
+            ]) as any;
+
+            console.log('Sign-in result received:', { data, error })
+
             if (error) {
                 setError(error.message)
-            } else {
-                // Check if user has admin role
-                if (data.user) {
-                    const { data: profile } = await supabase
-                        .from('profiles')
-                        .select('role')
-                        .eq('id', data.user.id)
-                        .single()
+                return
+            }
 
-                    if (profile?.role === 'admin') {
-                        router.push('/admin')
-                    } else {
-                        router.push('/')
-                    }
+            if (data.user) {
+                console.log('User authenticated:', data.user.id)
+                console.log('Fetching user profile...')
+                const { data: profile } = await supabase
+                    .from('profiles')
+                    .select('role')
+                    .eq('id', data.user.id)
+                    .single()
+                
+                console.log('Profile fetch result:', profile)
+
+                if (profile?.role === 'admin') {
+                    router.push('/admin')
                 } else {
                     router.push('/')
                 }
-                router.refresh()
-            }
-        } catch (err: any) {
-            console.error('Login error:', err)
-            if (err.message === 'Failed to fetch') {
-                setError('Network error: Unable to connect to authentication server. Please check your internet connection and ensure Supabase is configured correctly.')
             } else {
-                setError('An unexpected error occurred. Please try again later.')
+                router.push('/')
+            }
+            router.refresh()
+        } catch (err: any) {
+            console.error('Login error detail:', err)
+            if (err.message === 'SUPABASE_AUTH_TIMEOUT') {
+                setError('Authentication timed out. This often happens if the Supabase URL or Key is misconfigured, or if the server is unreachable.')
+            } else if (err.message === 'Failed to fetch') {
+                setError('Network error: Unable to connect to authentication server.')
+            } else {
+                setError('An unexpected error occurred: ' + err.message)
             }
         }
     }
@@ -89,7 +109,7 @@ export default function LoginPage() {
                 </form>
                 <div className="text-center text-sm">
                     <Link href="/register" className="font-medium text-purple-600 hover:text-purple-500">
-                        Don't have an account? Sign up
+                        Don&apos;t have an account? Sign up
                     </Link>
                 </div>
             </div>

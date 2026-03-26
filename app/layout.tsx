@@ -14,11 +14,6 @@ export const metadata: Metadata = {
   title: "Kelal Gebeya - Ethiopia's Premier Fashion Marketplace",
   description:
     "Shop authentic traditional Ethiopian clothing, modern fashion, and footwear from local designers.",
-  icons: {
-    icon: "/images/logo.png",
-    shortcut: "/images/logo.png",
-    apple: "/images/logo.png",
-  },
 };
 
 export default function RootLayout({
