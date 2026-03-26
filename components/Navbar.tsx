@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useAppSelector, useAppDispatch } from "@/lib/hooks";
 import {
   ShoppingCart,
@@ -194,11 +195,12 @@ export default function Navbar() {
                       >
                         <div className="w-12 h-12 rounded-lg overflow-hidden bg-gray-100 dark:bg-neutral-800 flex-shrink-0">
                           {product.images?.[0] ? (
-                            <img
-                              src={product.images[0]}
-                              alt=""
-                              className="w-full h-full object-cover"
-                            />
+                          <Image
+                            src={product.images[0]}
+                            alt={product.name}
+                            fill
+                            className="object-cover"
+                          />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center text-gray-400">
                               <Search className="w-4 h-4" />
@@ -402,11 +404,12 @@ export default function Navbar() {
                         >
                           <div className="w-10 h-10 rounded-lg overflow-hidden bg-gray-100 dark:bg-neutral-800 flex-shrink-0">
                             {product.images?.[0] ? (
-                              <img
-                                src={product.images[0]}
-                                alt=""
-                                className="w-full h-full object-cover"
-                              />
+                            <Image
+                              src={product.images[0]}
+                              alt={product.name}
+                              fill
+                              className="object-cover"
+                            />
                             ) : (
                               <div className="w-full h-full flex items-center justify-center text-gray-400">
                                 <Search className="w-4 h-4" />

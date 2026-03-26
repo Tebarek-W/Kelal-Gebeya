@@ -32,7 +32,6 @@ export default function ProductGallery({ images, productName }: ProductGalleryPr
                     src={displayImages[currentIndex]}
                     alt={`${productName} - Image ${currentIndex + 1}`}
                     fill
-                    unoptimized
                     className="object-cover transition-all duration-300"
                     priority
                 />
@@ -70,7 +69,7 @@ export default function ProductGallery({ images, productName }: ProductGalleryPr
                                     : "border-transparent hover:border-gray-300 dark:hover:border-neutral-700"
                             )}
                         >
-                            <Image src={img} alt="" fill unoptimized className="object-cover" />
+                            <Image src={img} alt="" fill className="object-cover" />
                         </div>
                     ))}
                 </div>

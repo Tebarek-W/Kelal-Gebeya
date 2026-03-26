@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import DashboardChart from './DashboardChart'
 import { ShoppingBag, DollarSign, Package, TrendingUp } from 'lucide-react'
 
@@ -61,7 +62,9 @@ export default async function DashboardPage() {
                 </div>
                 <div className="flex items-center gap-3 px-2 py-2">
                     {shop.logo_url ? (
-                        <img src={shop.logo_url} alt={shop.name} className="w-8 h-8 rounded-full object-cover" />
+                        <div className="relative w-8 h-8 rounded-full overflow-hidden">
+                            <Image src={shop.logo_url} alt={shop.name} fill className="object-cover" />
+                        </div>
                     ) : (
                         <div className="w-8 h-8 rounded-full bg-purple-600 flex items-center justify-center text-white font-bold text-xs">
                             {shop.name[0]}

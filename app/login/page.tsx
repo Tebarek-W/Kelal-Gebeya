@@ -1,6 +1,6 @@
 'use client'
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+
 import Link from 'next/link'
 import { login } from './actions'
 
@@ -9,7 +9,6 @@ export default function LoginPage() {
     const [password, setPassword] = useState('')
     const [error, setError] = useState('')
     const [loading, setLoading] = useState(false)
-    const router = useRouter()
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -30,12 +29,8 @@ export default function LoginPage() {
             }
 
             if (result?.success) {
-                if (result.isAdmin) {
-                    router.push('/admin')
-                } else {
-                    router.push('/')
-                }
-                router.refresh()
+                // Hard redirect to ensure AuthProvider re-syncs state
+                window.location.href = result.isAdmin ? '/admin' : '/'
             }
         } catch (err) {
             console.error('Login error detail:', err)
