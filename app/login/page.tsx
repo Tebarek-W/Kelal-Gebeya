@@ -1,69 +1,46 @@
 'use client'
 import { useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { login } from './actions'
 
 export default function LoginPage() {
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [error, setError] = useState('')
+    const [loading, setLoading] = useState(false)
     const router = useRouter()
-    const supabase = createClient()
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault()
         setError('')
-        console.log('Login attempt started for:', email)
+        setLoading(true)
+        
         try {
-            console.log('Calling signInWithPassword...')
-            
-            // Timeout promise
-            const timeoutPromise = new Promise((_, reject) => 
-                setTimeout(() => reject(new Error('SUPABASE_AUTH_TIMEOUT')), 10000)
-            );
+            const formData = new FormData()
+            formData.append('email', email)
+            formData.append('password', password)
 
-            const { data, error } = await Promise.race([
-                supabase.auth.signInWithPassword({ email, password }),
-                timeoutPromise
-            ]) as any;
+            const result = await login(formData)
 
-            console.log('Sign-in result received:', { data, error })
-
-            if (error) {
-                setError(error.message)
+            if (result?.error) {
+                setError(result.error)
+                setLoading(false)
                 return
             }
 
-            if (data.user) {
-                console.log('User authenticated:', data.user.id)
-                console.log('Fetching user profile...')
-                const { data: profile } = await supabase
-                    .from('profiles')
-                    .select('role')
-                    .eq('id', data.user.id)
-                    .single()
-                
-                console.log('Profile fetch result:', profile)
-
-                if (profile?.role === 'admin') {
+            if (result?.success) {
+                if (result.isAdmin) {
                     router.push('/admin')
                 } else {
                     router.push('/')
                 }
-            } else {
-                router.push('/')
+                router.refresh()
             }
-            router.refresh()
-        } catch (err: any) {
+        } catch (err) {
             console.error('Login error detail:', err)
-            if (err.message === 'SUPABASE_AUTH_TIMEOUT') {
-                setError('Authentication timed out. This often happens if the Supabase URL or Key is misconfigured, or if the server is unreachable.')
-            } else if (err.message === 'Failed to fetch') {
-                setError('Network error: Unable to connect to authentication server.')
-            } else {
-                setError('An unexpected error occurred: ' + err.message)
-            }
+            setError('An unexpected error occurred during sign-in.')
+            setLoading(false)
         }
     }
 
@@ -102,9 +79,10 @@ export default function LoginPage() {
 
                     <button
                         type="submit"
-                        className="group relative flex w-full justify-center rounded-md bg-purple-600 px-3 py-2.5 text-sm font-semibold text-white hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-600 shadow-md shadow-purple-600/20 cursor-pointer transition-colors"
+                        disabled={loading}
+                        className={`group relative flex w-full justify-center rounded-md bg-purple-600 px-3 py-2.5 text-sm font-semibold text-white hover:bg-purple-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-purple-600 shadow-md shadow-purple-600/20 transition-colors ${loading ? 'opacity-70 cursor-not-allowed' : 'cursor-pointer'}`}
                     >
-                        Sign in
+                        {loading ? 'Signing in...' : 'Sign in'}
                     </button>
                 </form>
                 <div className="text-center text-sm">
